@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>הזמנת יומנים</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>הזמנת יומנים</h1>
+    <form id="orderForm">
+      <label>שם מלא:</label>
+      <input type="text" name="name" required />
+
+      <label>אימייל:</label>
+      <input type="email" name="email" />
+
+      <label>טלפון:</label>
+      <input type="tel" name="phone" required />
+
+      <label>כמות יומנים:</label>
+      <input type="number" name="quantity" min="1" required />
+
+      <label>סוג משלוח:</label>
+      <select name="deliveryType" required>
+        <option value="pickup">איסוף עצמי</option>
+        <option value="delivery">שליח עד הבית</option>
+      </select>
+
+      <div id="addressField" style="display:none;">
+        <label>כתובת למשלוח:</label>
+        <input type="text" name="address" />
+      </div>
+
+      <p id="totalPrice">סה"כ לתשלום: 0 ₪</p>
+
+      <button type="submit">שליחה</button>
+      <p id="statusMessage"></p>
+    </form>
+  </div>
+
+  <script>
+    const unitPrice = 59;
+    const deliveryPrice = 10;
+
+    const form = document.getElementById("orderForm");
+    const deliverySelect = form.elements["deliveryType"];
+    const quantityInput = form.elements["quantity"];
+    const addressField = document.getElementById("addressField");
+    const totalPriceDisplay = document.getElementById("totalPrice");
+    const statusMessage = document.getElementById("statusMessage");
+
+    function calculateTotal() {
+      const quantity = parseInt(quantityInput.value) || 0;
+      let total = quantity * unitPrice;
+      if (deliverySelect.value === "delivery" && quantity < 10) {
+        total += deliveryPrice;
+      }
+      totalPriceDisplay.textContent = `סה"כ לתשלום: ${total} ₪`;
+      return total;
+    }
+
+    deliverySelect.addEventListener("change", () => {
+      addressField.style.display = deliverySelect.value === "delivery" ? "block" : "none";
+      calculateTotal();
+    });
+
+    quantityInput.addEventListener("input", calculateTotal);
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusMessage.textContent = "שולח הזמנה...";
+
+      const data = {
+        name: form.elements["name"].value,
+        email: form.elements["email"].value,
+        phone: form.elements["phone"].value,
+        quantity: parseInt(form.elements["quantity"].value),
+        deliveryType: form.elements["deliveryType"].value,
+        address: form.elements["deliveryType"].value === "delivery" ? form.elements["address"].value : "",
+        totalPrice: calculateTotal(),
+      };
+
+      try {
+        const res = await fetch("https://YOUR-RENDER-BACKEND-URL/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (!res.ok) throw new Error("שגיאה בשליחה");
+
+        statusMessage.textContent = "✅ ההזמנה נקלטה בהצלחה!";
+        form.reset();
+        addressField.style.display = "none";
+        totalPriceDisplay.textContent = "סה\"כ לתשלום: 0 ₪";
+      } catch (err) {
+        statusMessage.textContent = "❌ אירעה שגיאה בשליחה, נסי שוב.";
+      }
+    });
+  </script>
+</body>
+</html>
