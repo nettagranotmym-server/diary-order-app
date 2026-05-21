@@ -76,7 +76,7 @@
 function calculateTotal() {
   const quantity = parseInt(quantityInput.value) || 0;
 
-  // עצירת ההזמנה אם מעל 500
+  // עצירת ההזמנה אם מעל 501
   if (quantity > 499) {
     alert("להזמנות מעל 500 יחידות אנא צרו קשר במייל: shalevsway.org@gmail.com");
     form.querySelector('button[type="submit"]').disabled = true;
