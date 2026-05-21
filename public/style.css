@@ -1,25 +1,74 @@
+/* ✅ לוגו בראש העמוד */
+.page-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.top-logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* ✅ כותרת ודגשים מתחת ללוגו */
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.subheading {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: normal;
+  color: #555;
+  margin-top: 5px;
+}
+
+.subsubheading {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #444;
+  margin-top: 5px;
+}
+
+/* 🎨 עיצוב כללי */
 body {
   font-family: Arial, sans-serif;
-  margin: 40px;
+  margin: 20px;
   background-color: #f9f9f9;
+  direction: rtl;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
 }
 
 form {
-  max-width: 400px;
-  margin: auto;
   background-color: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  display: block;
 }
 
 input, select, button {
   width: 100%;
   padding: 10px;
-  margin-top: 10px;
+  margin-top: 5px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1rem;
 }
 
 button {
@@ -27,8 +76,107 @@ button {
   color: white;
   border: none;
   cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
   background-color: #0056b3;
+}
+
+/* 🛍 מידע על איסוף */
+#pickupInfo {
+  background-color: #f0f0f0;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px dashed #aaa;
+  border-radius: 5px;
+  font-size: 0.95rem;
+}
+
+/* 💬 הודעת מצב */
+#statusMessage {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* 💰 מחיר ליחידה */
+#unitPriceText {
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+/* 📦 סיכום הזמנה */
+#orderSummary {
+  background-color: #e9f7ef;
+  border: 1px solid #b2dfdb;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+
+#orderSummary h3 {
+  margin-top: 0;
+  color: #2e7d32;
+}
+
+#summaryText {
+  background-color: #ffffff;
+  border: 1px dashed #ccc;
+  padding: 10px;
+  white-space: pre-wrap;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+/* 📋 כפתור העתקה */
+#orderSummary button {
+  background-color: #388e3c;
+  color: white;
+  font-size: 0.95rem;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#orderSummary button:hover {
+  background-color: #2e7d32;
+}
+
+/* 📱 התאמה לנייד */
+@media (max-width: 600px) {
+  .page-header {
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+
+  .top-logo {
+    height: 50px;
+  }
+
+  .subheading, .subsubheading {
+    font-size: 0.85rem;
+  }
+
+  input, select, button {
+    font-size: 1rem;
+  }
+
+  #pickupInfo {
+    font-size: 0.9rem;
+  }
+
+  #unitPriceText {
+    font-size: 0.95rem;
+  }
+
+  #summaryText {
+    font-size: 0.9rem;
+  }
 }
