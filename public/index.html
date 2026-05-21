@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,14 +7,21 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <header class="page-header">
+    <img src="logo.png" alt="לוגו" class="top-logo" />
+  </header>
+
   <div class="container">
     <h1>הזמנת יומנים</h1>
+    <div class="subheading">יומן מסע אישי לחיים עם משמעות</div>
+    <div class="subsubheading">עמותת 'בדרך שלו' ע"ר<br/>לזכרו של שלו זלצמן</div>
+
     <form id="orderForm">
       <label>שם מלא:</label>
       <input type="text" name="name" required />
 
       <label>אימייל:</label>
-      <input type="email" name="email" />
+      <input type="email" name="email" required />
 
       <label>טלפון:</label>
       <input type="tel" name="phone" required />
@@ -24,45 +31,90 @@
 
       <label>סוג משלוח:</label>
       <select name="deliveryType" required>
-        <option value="pickup">איסוף עצמי</option>
-        <option value="delivery">שליח עד הבית</option>
+        <option value="pickup" selected>איסוף עצמי</option>
+        <option value="delivery">שליח עד הבית (בתוספת 20 ש"ח)</option>
       </select>
+
+      <div id="pickupInfo">
+        כתובת לאיסוף: רחוב דפנה 5 א', רמת ישי – בית משפחת זלצמן
+      </div>
 
       <div id="addressField" style="display:none;">
         <label>כתובת למשלוח:</label>
-        <input type="text" name="address" />
+        <input type="text" name="address" id="deliveryAddress" />
       </div>
 
+      <p id="unitPriceText">מחיר ליחידה: </p>
       <p id="totalPrice">סה"כ לתשלום: 0 ₪</p>
 
       <button type="submit">שליחה</button>
       <p id="statusMessage"></p>
     </form>
+
+    <!-- סיכום הזמנה -->
+    <div id="orderSummary" style="display:none; margin-top:20px; background:#e9f7ef; padding:15px; border-radius:8px;">
+      <h3>📦 סיכום הזמנה</h3>
+      <pre id="summaryText" style="white-space:pre-wrap; direction:rtl; font-family:inherit;"></pre>
+      <button onclick="copySummary()">📋 העתק סיכום</button>
+    </div>
   </div>
 
   <script>
-    const unitPrice = 59;
-    const deliveryPrice = 10;
-
+    const DELIVERY_COST = 20;
     const form = document.getElementById("orderForm");
     const deliverySelect = form.elements["deliveryType"];
     const quantityInput = form.elements["quantity"];
     const addressField = document.getElementById("addressField");
+    const pickupInfo = document.getElementById("pickupInfo");
+    const deliveryAddressInput = document.getElementById("deliveryAddress");
     const totalPriceDisplay = document.getElementById("totalPrice");
+    const unitPriceText = document.getElementById("unitPriceText");
     const statusMessage = document.getElementById("statusMessage");
+    const orderSummary = document.getElementById("orderSummary");
+    const summaryText = document.getElementById("summaryText");
 
-    function calculateTotal() {
-      const quantity = parseInt(quantityInput.value) || 0;
-      let total = quantity * unitPrice;
-      if (deliverySelect.value === "delivery" && quantity < 10) {
-        total += deliveryPrice;
-      }
-      totalPriceDisplay.textContent = `סה"כ לתשלום: ${total} ₪`;
-      return total;
+function calculateTotal() {
+  const quantity = parseInt(quantityInput.value) || 0;
+
+  // עצירת ההזמנה אם מעל 500
+  if (quantity > 499) {
+    alert("להזמנות מעל 500 יחידות אנא צרו קשר במייל: shalevsway.org@gmail.com");
+    form.querySelector('button[type="submit"]').disabled = true;
+    unitPriceText.textContent = "מחיר ליחידה: —";
+    totalPriceDisplay.textContent = "סה\"כ לתשלום: —";
+    return 0;
+  } else {
+    form.querySelector('button[type="submit"]').disabled = false;
+  }
+
+  let pricePerUnit = 79;
+  if (quantity >= 51 && quantity <= 99) {
+    pricePerUnit = 74;
+  } else if (quantity >= 100 && quantity <= 499) {
+    pricePerUnit = 69;
+  }
+
+  let total = quantity * pricePerUnit;
+  if (deliverySelect.value === "delivery") {
+    total += DELIVERY_COST;
+  }
+
+  unitPriceText.textContent = `מחיר ליחידה: ${pricePerUnit} ₪`;
+  totalPriceDisplay.textContent = `סה"כ לתשלום: ${total} ₪`;
+  return total;
+}
+
+
+    function copySummary() {
+      navigator.clipboard.writeText(summaryText.textContent);
+      alert("📋 הסיכום הועתק");
     }
 
     deliverySelect.addEventListener("change", () => {
-      addressField.style.display = deliverySelect.value === "delivery" ? "block" : "none";
+      const isDelivery = deliverySelect.value === "delivery";
+      addressField.style.display = isDelivery ? "block" : "none";
+      pickupInfo.style.display = isDelivery ? "none" : "block";
+      deliveryAddressInput.required = isDelivery;
       calculateTotal();
     });
 
@@ -70,15 +122,15 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      statusMessage.textContent = "שולח הזמנה...";
+      statusMessage.textContent = "⏳ ההזמנה נשלחת לשרת. יש להמתין...";
 
       const data = {
         name: form.elements["name"].value,
         email: form.elements["email"].value,
         phone: form.elements["phone"].value,
         quantity: parseInt(form.elements["quantity"].value),
-        deliveryType: form.elements["deliveryType"].value,
-        address: form.elements["deliveryType"].value === "delivery" ? form.elements["address"].value : "",
+        deliveryType: deliverySelect.value,
+        address: deliverySelect.value === "delivery" ? deliveryAddressInput.value : "",
         totalPrice: calculateTotal(),
       };
 
@@ -89,16 +141,34 @@
           body: JSON.stringify(data),
         });
 
-        if (!res.ok) throw new Error("שגיאה בשליחה");
+        if (!res.ok) throw new Error("שגיאה בשרת");
 
-        statusMessage.textContent = "✅ ההזמנה נקלטה בהצלחה!";
+        statusMessage.textContent = "✅ ההזמנה נקלטה. ההזמנה תצא לפועל רק לאחר אישור קליטת התשלום.";
         form.reset();
+        pickupInfo.style.display = "block";
         addressField.style.display = "none";
-        totalPriceDisplay.textContent = "סה\"כ לתשלום: 0 ₪";
+        deliveryAddressInput.required = false;
+        calculateTotal();
+
+        const pickupText = "כתובת לאיסוף: רחוב דפנה 5 א', רמת ישי – בית משפחת זלצמן";
+
+        summaryText.textContent = `שם: ${data.name}
+טלפון: ${data.phone}
+אימייל: ${data.email || '—'}
+כמות יומנים: ${data.quantity}
+סוג משלוח: ${data.deliveryType === "delivery" ? "שליח עד הבית" : "איסוף עצמי"}
+${data.deliveryType === "delivery" ? "כתובת: " + data.address : pickupText}
+סכום לתשלום: ${data.totalPrice} ₪`;
+
+        orderSummary.style.display = "block";
+        orderSummary.scrollIntoView({ behavior: "smooth" });
+
       } catch (err) {
-        statusMessage.textContent = "❌ אירעה שגיאה בשליחה, נסי שוב.";
+        statusMessage.textContent = "❌ שגיאה בשליחה, נא לנסות שוב.";
       }
     });
+
+    window.addEventListener("DOMContentLoaded", calculateTotal);
   </script>
 </body>
 </html>
